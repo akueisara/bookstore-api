@@ -4,7 +4,7 @@ from fastapi import Query
 from pydantic import BaseModel
 
 
-class Role(enum.Enum):
+class Role(str, enum.Enum):
     admin: str = "admin"
     personel: str = "personel"
 

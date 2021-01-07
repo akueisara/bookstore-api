@@ -21,3 +21,11 @@ create table authors
     name text,
     book text[]
 );
+
+create table personel(
+    id serial primary key,
+    username text,
+    password text,
+    mail text,
+    role text
+);
