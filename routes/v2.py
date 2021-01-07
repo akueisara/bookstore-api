@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Header
+from fastapi import Header, APIRouter
 from starlette.status import HTTP_201_CREATED
 
 from models.user import User
 
-app_v2 = FastAPI(openapi_prefix="/v2")
+app_v2 = APIRouter()
 
 
 # Save bookstore admin to db

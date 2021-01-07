@@ -1,20 +1,19 @@
-from fastapi import FastAPI, Body, Header, File, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Body, Header, File, APIRouter
 from starlette.responses import Response
-from starlette.status import HTTP_201_CREATED, HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_201_CREATED
 
-from models.jwt_user import JWTUser
 from models.user import User
 from models.author import Author
 from models.book import Book
-from utils.secuirty import authenticate_user, create_jwt_token
 
-app_v1 = FastAPI(openapi_prefix="/v1")
+
+app_v1 = APIRouter()
 
 
 # Save bookstore admin to db
-@app_v1.post("/user", status_code=HTTP_201_CREATED)
+@app_v1.post("/user", status_code=HTTP_201_CREATED, tags=["User"])
 # async def post_user(user: User, x_custom: str = Header(...)):
+# async def post_user(user: User, x_custom: str = Header("default"), jwt: bool = Depends(check_jwt_token)):
 async def post_user(user: User, x_custom: str = Header("default")):
     return {
         "request_body": user,
@@ -23,14 +22,14 @@ async def post_user(user: User, x_custom: str = Header("default")):
 
 
 # Check if a given user exists
-@app_v1.get("/user")
+@app_v1.get("/user", tags=["User"])
 async def get_user_validation(password: str):
     return {"query_parameter": password}
 
 
 # Get specific books
 # @app_v1.get("/book/{isbn}", response_model=Book, response_model_include=["name", "year"])
-@app_v1.get("/book/{isbn}", response_model=Book, response_model_exclude=["author"])
+@app_v1.get("/book/{isbn}", response_model=Book, response_model_exclude=["author"], tags=["Book"])
 async def get_book_with_isbn(isbn: str):
     author_dict = {
         "name": "author1",
@@ -48,7 +47,7 @@ async def get_book_with_isbn(isbn: str):
 
 
 # Get all books of a given author with order type and category
-@app_v1.get("/author/{id}/book")
+@app_v1.get("/author/{id}/book", tags=["Book"])
 async def get_authors_books(id: int, category: str, order: str = "asc"):
     return {
         "id": str(id),
@@ -81,16 +80,3 @@ async def upload_user_photo(response: Response, profile_photo: bytes = File(...)
     return {
         "file_size": str(len(profile_photo))
     }
-
-
-@app_v1.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    jwt_user_dict = {"username": form_data.username, "password": form_data.password}
-    jwt_user = JWTUser(**jwt_user_dict)
-    user = authenticate_user(jwt_user)
-
-    if user is None:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
-
-    jwt_token = create_jwt_token(user)
-    return {"token": jwt_token}
