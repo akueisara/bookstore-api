@@ -1,10 +1,9 @@
 import time
 from datetime import datetime, timedelta
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-from starlette.status import HTTP_401_UNAUTHORIZED
 
 from models.jwt_user import JWTUser
 from utils.const import JWT_EXPIRATION_TIME_MINUTES, JWT_ALGORITHM, JWT_SECRET_KEY
@@ -66,9 +65,9 @@ def check_jwt_token(token: str = Depends(oauth_schema)):
             if fake_jwt_user_1.username == username:
                 return final_checks(role)
     except Exception as e:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
+        return False
 
-    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
+    return False
 
 
 # Last checking and returning the final result

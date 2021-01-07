@@ -7,7 +7,7 @@ from models.jwt_user import JWTUser
 from models.user import User
 from models.author import Author
 from models.book import Book
-from utils.secuirty import authenticate_user, create_jwt_token, check_jwt_token
+from utils.secuirty import authenticate_user, create_jwt_token
 
 app_v1 = FastAPI(openapi_prefix="/v1")
 
@@ -15,7 +15,7 @@ app_v1 = FastAPI(openapi_prefix="/v1")
 # Save bookstore admin to db
 @app_v1.post("/user", status_code=HTTP_201_CREATED)
 # async def post_user(user: User, x_custom: str = Header(...)):
-async def post_user(user: User, x_custom: str = Header("default"), jwt: bool = Depends(check_jwt_token)):
+async def post_user(user: User, x_custom: str = Header("default")):
     return {
         "request_body": user,
         "custom_header": x_custom
