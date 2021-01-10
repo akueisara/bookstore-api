@@ -15,3 +15,5 @@ DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
 UPLOAD_PHOTO_APIKEY = "d394465f8ceddab5768cbdc533549c39"
 UPLOAD_PHOTO_URL = f"https://api.imgbb.com/1/upload?key={UPLOAD_PHOTO_APIKEY}"
+
+REDIS_URL = "redis://localhost"

@@ -23,6 +23,7 @@ async def fetch(query, is_one, values=None):
             out = []
             for row in result:
                 out.append(dict(row))
+
     return out
 
 # insert_query = "insert into books values(:custom, :name, :author, :year)"

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import aioredis
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
@@ -8,7 +9,8 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from models.jwt_user import JWTUser
 from routes.v1 import app_v1
 from routes.v2 import app_v2
-from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION
+from utils import redis_object as re
+from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION, REDIS_URL
 from utils.db_object import db
 from utils.secuirty import check_jwt_token, authenticate_user, create_jwt_token
 
@@ -24,11 +26,15 @@ app.include_router(app_v2, prefix="/v2", dependencies=[Depends(check_jwt_token)]
 @app.on_event("startup")
 async def connect_db():
     await db.connect()
+    re.redis = await aioredis.create_redis_pool(REDIS_URL)
 
 
 @app.on_event("shutdown")
 async def disconnect_db():
     await db.disconnect()
+
+    re.redis.close()
+    await re.redis.wait_closed()
 
 
 @app.post("/token", description=TOKEN_DESCRIPTION, summary=TOKEN_SUMMARY)

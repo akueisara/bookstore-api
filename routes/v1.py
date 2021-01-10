@@ -8,6 +8,8 @@ from models.book import Book
 from utils.db_functions import db_insert_personel, db_check_personel, db_get_book_with_isbn, db_get_author, \
     db_get_author_from_id, db_patch_author_name
 from utils.helper_functions import upload_image_to_server
+import utils.redis_object as re
+import pickle
 
 app_v1 = APIRouter()
 
@@ -24,19 +26,40 @@ async def post_user(user: User, x_custom: str = Header("default")):
 # Check if a given user exists
 @app_v1.post("/login", tags=["User"])
 async def get_user_validation(username: str = Body(...), password: str = Body(...)):
-    result = await db_check_personel(username, password)
-    return {"is_valid": result}
+    redis_key = f"{username},{password}"
+    result = await re.redis.get(redis_key)
+
+    # Redis has the data
+    if result:
+        if result == "true":
+            return {"source": "redis", "is_valid": True}
+        else:
+            return {"source": "redis", "is_valid": False}
+    # Redis does not have the data
+    else:
+        result = await db_check_personel(username, password)
+        await re.redis.set(redis_key, str(result), expire=10)
+
+        return {"source": "db", "is_valid": result}
 
 
 # Get specific books
 # @app_v1.get("/book/{isbn}", response_model=Book, response_model_include=["name", "year"])
 @app_v1.get("/book/{isbn}", response_model=Book, response_model_exclude=["author"], tags=["Book"])
 async def get_book_with_isbn(isbn: str):
-    book = await db_get_book_with_isbn(isbn)
-    author = await db_get_author(book["author"])
-    author_obj = Author(**author)
-    book["author"] = author_obj
-    result_book = Book(**book)
+    result = await re.redis.get(isbn)
+
+    if result:
+        result_book = pickle.loads(result)
+    else:
+        book = await db_get_book_with_isbn(isbn)
+        author = await db_get_author(book["author"])
+        author_obj = Author(**author)
+        book["author"] = author_obj
+        result_book = Book(**book)
+
+        await re.redis.set(isbn, pickle.dumps(result_book))
+
     return result_book
 
 
