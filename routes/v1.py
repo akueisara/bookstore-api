@@ -76,11 +76,6 @@ async def get_authors_books(id: int, order: str = "asc"):
         return {"books": books}
     else:
        return {"result": "no author with corresponding id !"}
-    return {
-        "id": str(id),
-        "order": order,
-        "category": category,
-    }
 
 
 # Update author's name
