@@ -43,6 +43,11 @@ async def disconnect_db():
         await re.redis.wait_closed()
 
 
+@app.get("/")
+async def health_check():
+    return {"OK"}
+
+
 @app.post("/token", description=TOKEN_DESCRIPTION, summary=TOKEN_SUMMARY)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     redis_key = f"token:{form_data.username}, {form_data.password}"

@@ -128,7 +128,7 @@ ab -n 1000 -c 10 -H "Authorization : Bearer {jwt}" http://127.0.0.1:3000/v1/book
 
 Change the server's IP address in deploy.sh and run:
 ```shell
-./deploy.sh
+/bin/bash ./deploy.sh
 ```
 
 Check the logs
