@@ -1,4 +1,4 @@
-from locust import HttpUser, TaskSet, task
+from locust import HttpUser, task
 
 
 class BookstoreLoadTest(HttpUser):

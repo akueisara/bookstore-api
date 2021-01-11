@@ -11,7 +11,7 @@ from models.jwt_user import JWTUser
 from routes.v1 import app_v1
 from routes.v2 import app_v2
 from utils import redis_object as re
-from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION, REDIS_URL, TESTING, IS_LOAD_TEST
+from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION, REDIS_URL, TESTING, IS_PRODUCTION, REDIS_URL_PRODUCTION
 from utils.db_object import db
 from utils.secuirty import check_jwt_token, authenticate_user, create_jwt_token, get_hashed_password
 
@@ -28,7 +28,10 @@ app.include_router(app_v2, prefix="/v2", dependencies=[Depends(check_jwt_token)]
 async def connect_db():
     if not TESTING:
         await db.connect()
-        re.redis = await aioredis.create_redis_pool(REDIS_URL)
+        if IS_PRODUCTION:
+            re.redis = await aioredis.create_redis_pool(REDIS_URL_PRODUCTION)
+        else:
+            re.redis = await aioredis.create_redis_pool(REDIS_URL)
 
 
 @app.on_event("shutdown")

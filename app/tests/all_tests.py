@@ -2,7 +2,6 @@ import asyncio
 
 from starlette.testclient import TestClient
 
-from models.user import User
 from run import app
 from utils.db import execute, fetch
 from unittest import TestCase

@@ -20,6 +20,11 @@ Follow through the Udemy course _Complete Backend (API) Development with Python 
 ssh root@[server IP address]
 ```
 
+## Install Docker on Ubuntu
+
+https://docs.docker.com/engine/install/ubuntu/
+
+
 ## PostgreSQL Database Creation and Connection
 
 Create a DB in the server
@@ -73,9 +78,11 @@ Start a redis instance
 docker run --name my-redis -d redis
 ```
 
+Start a redis instance on port 6379
 ```shell
 docker run --name my-redis -d -p 6379:6379 redis
 ```
+
 
 ```shell
 ssh -L 6379:localhost:6379 -N -f -l root [server IP address]
@@ -110,9 +117,21 @@ locust -f ./tests/locust_load_test.py
 
 #### ApacheBench
 
-Install ApacheBench. Then under the /tests folder, run
+Install ApacheBench. Then under the /tests folder, run:
 
 ```shell
 ab -n 100 -c 5 -H "Authorization : Bearer {jwt}" -p ab_jsons/post_user.json http://127.0.0.1:3000/v1/user
 ab -n 1000 -c 10 -H "Authorization : Bearer {jwt}" http://127.0.0.1:3000/v1/book/isbn2
+```
+
+## Deployment
+
+Change the server's IP address in deploy.sh and run:
+```shell
+./deploy.sh
+```
+
+Check the logs
+```shell
+docker logs -f bookstore-api
 ```
