@@ -1,7 +1,8 @@
+import pickle
 from datetime import datetime
 
 import aioredis
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Body, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -10,9 +11,9 @@ from models.jwt_user import JWTUser
 from routes.v1 import app_v1
 from routes.v2 import app_v2
 from utils import redis_object as re
-from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION, REDIS_URL
+from utils.const import TOKEN_SUMMARY, TOKEN_DESCRIPTION, REDIS_URL, TESTING, IS_LOAD_TEST
 from utils.db_object import db
-from utils.secuirty import check_jwt_token, authenticate_user, create_jwt_token
+from utils.secuirty import check_jwt_token, authenticate_user, create_jwt_token, get_hashed_password
 
 app = FastAPI(
     title="Bookstore API Documentation",
@@ -25,29 +26,40 @@ app.include_router(app_v2, prefix="/v2", dependencies=[Depends(check_jwt_token)]
 
 @app.on_event("startup")
 async def connect_db():
-    await db.connect()
-    re.redis = await aioredis.create_redis_pool(REDIS_URL)
+    if not TESTING:
+        await db.connect()
+        re.redis = await aioredis.create_redis_pool(REDIS_URL)
 
 
 @app.on_event("shutdown")
 async def disconnect_db():
-    await db.disconnect()
+    if not TESTING:
+        await db.disconnect()
 
-    re.redis.close()
-    await re.redis.wait_closed()
+        re.redis.close()
+        await re.redis.wait_closed()
 
 
 @app.post("/token", description=TOKEN_DESCRIPTION, summary=TOKEN_SUMMARY)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    jwt_user_dict = {"username": form_data.username, "password": form_data.password}
-    jwt_user = JWTUser(**jwt_user_dict)
-    user = await authenticate_user(jwt_user)
-
-    if user is None:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
-
+    redis_key = f"token:{form_data.username}, {form_data.password}"
+    user = await re.redis.get(redis_key)
+    if not user:
+        jwt_user_dict = {"username": form_data.username, "password": form_data.password}
+        jwt_user = JWTUser(**jwt_user_dict)
+        user = await authenticate_user(jwt_user)
+        await re.redis.set(redis_key, pickle.dumps(user))
+        if user is None:
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
+    else:
+        user = pickle.loads(user)
     jwt_token = create_jwt_token(user)
     return {"access_token": jwt_token}
+
+
+@app.get("/hashed-password")
+def hashed_password(password: str = Query(...)):
+    return get_hashed_password(password)
 
 
 @app.middleware("http")

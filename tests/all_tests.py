@@ -10,7 +10,7 @@ from unittest import TestCase
 from utils.secuirty import get_hashed_password
 
 
-class AllTest(TestCase):
+class AllTests(TestCase):
     def setUp(self):
         self.client = TestClient(app)
         self.loop = asyncio.get_event_loop()

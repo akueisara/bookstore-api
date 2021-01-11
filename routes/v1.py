@@ -1,6 +1,6 @@
-from fastapi import Body, Header, File, APIRouter
+from fastapi import Body, Header, File, APIRouter, HTTPException
 from starlette.responses import Response
-from starlette.status import HTTP_201_CREATED
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
 from models.user import User
 from models.author import Author
@@ -52,11 +52,14 @@ async def get_book_with_isbn(isbn: str):
     if result:
         result_book = pickle.loads(result)
     else:
-        book = await db_get_book_with_isbn(isbn)
-        author = await db_get_author(book["author"])
-        author_obj = Author(**author)
-        book["author"] = author_obj
-        result_book = Book(**book)
+        try:
+            book = await db_get_book_with_isbn(isbn)
+            author = await db_get_author(book["author"])
+            author_obj = Author(**author)
+            book["author"] = author_obj
+            result_book = Book(**book)
+        except Exception as _:
+            raise HTTPException(status_code=HTTP_404_NOT_FOUND)
 
         await re.redis.set(isbn, pickle.dumps(result_book))
 
