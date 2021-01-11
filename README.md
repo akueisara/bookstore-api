@@ -111,7 +111,8 @@ locust -f ./tests/locust_load_test.py
 #### ApacheBench
 
 Install ApacheBench. Then under the /tests folder, run
+
 ```shell
 ab -n 100 -c 5 -H "Authorization : Bearer {jwt}" -p ab_jsons/post_user.json http://127.0.0.1:3000/v1/user
-ab -n 1000 -c 10 -H "Authorization : Bearer {jwt}" ab_jsons/post_user.json http://127.0.0.1:3000/v1/user
+ab -n 1000 -c 10 -H "Authorization : Bearer {jwt}" http://127.0.0.1:3000/v1/book/isbn2
 ```
