@@ -28,7 +28,7 @@ https://docs.docker.com/engine/install/ubuntu/
 ## PostgreSQL Database Creation and Connection
 
 Create a DB in the server
-```
+```shell
 docker run --name=bookstore-db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=bookstore -p 5432:5432 -d postgres:10
 ```
 
@@ -128,10 +128,19 @@ ab -n 1000 -c 10 -H "Authorization : Bearer {jwt}" http://127.0.0.1:3000/v1/book
 
 Change the server's IP address in deploy.sh and run:
 ```shell
-/bin/bash ./deploy.sh
+sudo chmod +x deploy.sh
+./deploy.sh
 ```
 
 Check the logs
 ```shell
 docker logs -f bookstore-api
+```
+
+## Nginx
+
+Run the following commands under the /nginx-reverse-proxy folder on your cloud machine
+```shell
+docker build -t bookstoe-nginx .
+docker run -idt --name=api-nginx -p 80:80 bookstore-nginx
 ```

@@ -1,0 +1,23 @@
+
+limit_req_zone $binary_remote_addr zone=bookstore:10m rate=2r/m;
+
+server {
+    listen 80;
+
+    server_name _;
+
+    location /v1/user {
+        limit_req zone=bookstore;
+        proxy_pass http://167.99.31.178:3000;
+#        proxy_pass http://bookstore-lb;
+    }
+
+    location / {
+#        allow 85.110.71.70;
+#        deny all;
+
+        proxy_pass http://167.99.31.178:3000/;
+#        proxy_pass http://bookstore-lb/;
+    }
+
+}
