@@ -8,6 +8,7 @@ RUN ln -s /etc/nginx/sites-available/bookstore.nginx /etc/nginx/sites-enabled/bo
 COPY entrypoint.sh nginx-letsencrypt
 COPY certbot.sh certbot.sh
 COPY ssl-options/ /etc/ssl-options
+RUN apt install certbot -y
 RUN chmod +x nginx-letsencrypt && \
     chmod +x certbot.sh
 

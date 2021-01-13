@@ -4,7 +4,7 @@ limit_req_zone $binary_remote_addr zone=bookstore:10m rate=2r/m;
 server {
     listen 80;
 
-    server_name _;
+    server_name 167.99.31.178;
 
     location /v1/user {
         limit_req zone=bookstore;

@@ -17,7 +17,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name 167.99.31.178;
+    server_name 167.99.31.178;  # have to use a domain name to enable SSL
 
     ssl_certificate /usr/share/nginx/certificates/fullchain.pem;
     ssl_certificate_key /usr/share/nginx/certificates/privkey.pem;
