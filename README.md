@@ -144,3 +144,10 @@ Run the following commands under the /nginx-reverse-proxy folder on your cloud m
 docker build -t bookstoe-nginx .
 docker run -idt --name=api-nginx -p 80:80 bookstore-nginx
 ```
+
+## Prettier
+
+```shell
+flake8 app/run.py
+black app/run.py
+```

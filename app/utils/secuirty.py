@@ -7,7 +7,8 @@ from passlib.context import CryptContext
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from models.jwt_user import JWTUser
-from utils.const import JWT_EXPIRATION_TIME_MINUTES, JWT_ALGORITHM, JWT_SECRET_KEY
+from utils.const import JWT_EXPIRATION_TIME_MINUTES, JWT_ALGORITHM, JWT_SECRET_KEY, JWT_EXPIRED_MSG, \
+    USERNAME_INVALID_MSG, JWT_WRONG_ROLE
 
 import jwt
 
@@ -28,6 +29,7 @@ def verify_password(plain_password, hashed_password):
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except Exception as e:
+        print(e)
         return False
 
 
@@ -79,10 +81,12 @@ async def check_jwt_token(token: str = Depends(oauth_schema)):
             # if fake_jwt_user_1.username == username:
             if is_valid:
                 return final_checks(role)
+            else:
+                raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=USERNAME_INVALID_MSG)
+        else:
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=JWT_EXPIRED_MSG)
     except Exception as e:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
-
-    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
 
 
 # Last checking and returning the final result
@@ -90,4 +94,4 @@ def final_checks(role: str):
     if role == "admin":
         return True
     else:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=JWT_WRONG_ROLE)
