@@ -12,5 +12,5 @@ ssh root@167.99.31.178 'docker run -idt -e MODULE_NAME="run" -e PORT="3000" -e P
 ssh root@167.99.31.178 'docker stop api-nginx'
 ssh root@167.99.31.178 'docker rm api-nginx'
 
-ssh root@167.99.31.178 'docker build -t bookstore-nginx ~/bookstore/bookstore-api/nginx-reverse-proxy'
-ssh root@167.99.31.178 'docker run -idt --name=api-nginx -p 80:80 bookstore-nginx'
+ssh root@167.99.31.178 'docker build -t bookstore-nginx ~/bookstore/bookstore-api/nginx-https'
+ssh root@167.99.31.178 'docker run -idt --name=api-nginx -p 80:80 -p 443:443 -e DOMAIN=167.99.31.178 -e EMAIL=kueijunghu@gmail.com bookstore-nginx'
